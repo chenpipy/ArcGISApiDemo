@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>调用地图服务</title>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8">
+        <link rel="stylesheet" href="https://js.arcgis.com/3.25/esri/css/esri.css">
+        <script src="https://js.arcgis.com/3.25/"></script> 
+        <script>
+            require([
+                "esri/map", 
+                "esri/layers/ArcGISDynamicMapServiceLayer",
+                "esri/layers/ArcGISTiledMapServiceLayer",
+                "esri/geometry/Extent",
+                 "esri/SpatialReference"], function(
+                     Map,
+                     ArcGISDynamicMapServiceLayer,
+                     ArcGISTiledMapServiceLayer,
+                     Extent,
+                     SpatialReference
+                     ) {
+                var extent = new Extent(71.010089,21.288148,135.768574,54.399626, new SpatialReference({ wkid:4326 }));
+                var map = new Map("map", {
+                    //center: [116.403119,39.915599],
+                    //zoom:2,
+                    extent:extent,
+                    basemap: "streets" //satellite、streets、oceans
+                });
+                //调用切片地图服务
+                var TiledLayer=new ArcGISTiledMapServiceLayer('http://localhost:6080/arcgis/rest/services//webgis_lesson/chinaImage/MapServer');
+                map.addLayer(TiledLayer);
+                //调用动态地图服务
+                var DyLayer=new ArcGISDynamicMapServiceLayer('http://localhost:6080/arcgis/rest/services/webgis_lesson/provincesDy/MapServer');
+                map.addLayer(DyLayer);
+                
+            });
+        </script>    
+    </head>
+    <body>
+        <div id='map'>
+
+        </div>
+    </body>
+</html>

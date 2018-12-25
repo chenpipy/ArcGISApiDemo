@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>属性查询</title>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8">
+        <meta http-equiv="Access-Control-Allow-Origin" content="*">
+        <link rel="stylesheet" href="https://js.arcgis.com/3.23/esri/css/esri.css">
+        <script src="https://js.arcgis.com/3.23/"></script> 
+        <style>
+            #map{
+              position:relative;
+              height:500px;
+              width:100%; 
+            }       
+            
+        </style>
+    </head>
+    <body>
+        <div style="position:fixed;top:10px; right:10px;z-index: 10;">
+            <input type="text" id="text" />
+            <input type="button" value="属性查询" id="Btn" />
+            <input type="button" value="清除" id="clear" />
+            <div id="divShowResult"></div>
+          </div>   
+        <div id='map'>        
+        </div>
+        <script>
+       require(["esri/map",
+      "esri/layers/ArcGISDynamicMapServiceLayer",
+      "dojo/dom",
+      "dojo/on",
+      "esri/tasks/QueryTask",
+      "esri/toolbars/draw",
+      "esri/tasks/query",
+      "esri/symbols/SimpleMarkerSymbol",
+      "esri/symbols/SimpleLineSymbol",
+      "esri/Color",
+      "esri/InfoTemplate",
+      "esri/graphic",
+      "dojo/domReady!"],
+      function (Map,
+        ArcGISDynamicMapServiceLayer,
+        dom,
+        on,
+        QueryTask,
+        Draw,
+        Query,
+        SimpleMarkerSymbol,
+        SimpleLineSymbol,
+        Color,
+        InfoTemplate,
+        Graphic) {
+        var map = new Map("map",{
+            center: [116.403119,39.915599],
+            zoom:3
+        }), mapserver = 'http://localhost:6080/arcgis/rest/services/webgis_lesson/ProAndCap/MapServer';
+        var layer = new ArcGISDynamicMapServiceLayer(mapserver);
+        map.addLayer(layer)
+        on(document.getElementById('Btn'), "click", function () {
+            
+            //创建查询对象，注意：服务的后面有一个编号，代表对那一个图层进行查询
+            let queryTask = new QueryTask(mapserver + "/0");
+            //创建查询参数对象
+            let query = new Query();
+            //查询条件，类似于sql语句的where子句
+            let nameobj=document.getElementById("text").value;
+            query.where = "NAME = '"+nameobj+"'";
+            //是否返回几何形状
+            query.returnGeometry = true;
+            //服务器给我们返回的字段信息，*代表返回所有字段
+            query.outFields = ["*"];
+            queryTask.execute(query, showQueryResult);
+        })                             
+        on(dom.byId("clear"), "click", function () {
+            map.graphics.clear();
+            document.getElementById("divShowResult").innerHTML = "";
+        })
+        function showQueryResult(queryResult) {
+            //定义点符号
+            var pointSym = new SimpleMarkerSymbol(
+                SimpleMarkerSymbol.STYLE_SQUARE,
+                 20,
+                new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([255, 0, 0]), 1),
+                new Color([255, 255, 0, 0.85])
+                );
+            //定义信息窗口
+            var infoTemplate = new InfoTemplate("省会信息", "Name:${NAME}");
+            if (queryResult.features.length == 0) {
+                dom.byId("divShowResult").innerHTML = "";
+                return;
+            }
+            var htmls = "";
+            if (queryResult.features.length >= 1) {
+                htmls = htmls + "<table style=\"width: 100%\">";
+                htmls = htmls + "<tr><td>名称</td></tr>";
+                for (let i = 0; i < queryResult.features.length; i++) {
+                    //得到graphic
+                    var graphic = queryResult.features[i];
+                    //给图形赋予符号
+                    graphic.setSymbol(pointSym);
+                    graphic.setInfoTemplate(infoTemplate);
+                    //添加到地图从而实现高亮效果
+                    map.graphics.add(graphic);  
+                    map.centerAndZoom(graphic.geometry,1);                       
+                    let ptattr = graphic.attributes;
+                    if (i % 2 == 0)
+                        htmls = htmls + "<tr>";
+                    else
+                        htmls = htmls + "<tr bgcolor=\"#F0F0F0\">";
+                    htmls = htmls + "<td><a href=\"#\"\">" + ptattr.NAME + "</a></td>";
+                    htmls = htmls + "</tr>";
+                }
+                htmls = htmls + "</table>";
+                dom.byId("divShowResult").innerHTML = htmls;
+            }
+        }
+      });
+
+            </script>    
+    </body>
+</html>

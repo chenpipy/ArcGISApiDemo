@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>绘制Graphic</title>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8">
+        <link rel="stylesheet" href="https://js.arcgis.com/3.25/esri/css/esri.css">
+        <script src="https://js.arcgis.com/3.25/"></script> 
+        <style>
+            #map{
+              position:relative;
+              height:500px;
+              width:100%; 
+            }            
+        </style>
+    </head>
+    <body>
+        
+        <div id='map'>
+        </div>
+        <script>
+                require([
+                    "esri/map",
+                    "esri/graphic",
+                    "esri/geometry/Point",
+                    "esri/geometry/Polyline",
+                    "esri/geometry/Polygon",
+                    "esri/geometry/Circle",
+                    "esri/symbols/SimpleMarkerSymbol",
+                    "esri/symbols/SimpleLineSymbol",
+                    "esri/symbols/SimpleFillSymbol",
+                    
+                    "esri/Color",
+                    "esri/InfoTemplate",
+                    "esri/layers/GraphicsLayer",
+                     "dojo/domReady!"], function(
+                         Map,
+                         Graphic,
+                         Point,
+                         Polyline,
+                         Polygon,
+                         Circle,
+                         SimpleMarkerSymbol,
+                         SimpleLineSymbol,
+                         SimpleFillSymbol,
+                        
+                         Color,
+                         InfoTemplate,
+                         GraphicsLayer        
+                         ) {
+                     var map = new Map("map", {
+                        center: [116.403119,39.915599],
+                        zoom:3,
+                        basemap: "satellite" 
+                    });
+                    //定义一个GraphicLayer来存放绘制的graphic
+                    var GraphicLayer=new GraphicsLayer(); 
+                    //将GraphicLayer添加到地图
+                    map.addLayer(GraphicLayer);  
+
+                    /* 绘制点Graphic   1.geometry、2.symbol、3.attributes、4.infotemplate*/
+                    //定义Point geometry
+                    var pt=new Point(116.403119,39.915599,map.spatialReference); 
+
+                    var line_sym=new SimpleLineSymbol(
+                        SimpleLineSymbol.STYLE_SOLID,
+                        new Color([255,0,0]),
+                         1);
+
+                    //定义点符号
+                    var pt_sym=new SimpleMarkerSymbol(
+                        SimpleMarkerSymbol.STYLE_SQUARE,//点类型
+                        10, //点尺寸
+                        line_sym,//点的轮廓线，线符号对象
+                        new Color([0,255,0,1])
+                        );//点的填充色
+
+                    var attr={'name':'实验点'};
+                    //infotemplate里面的值依托于attribute属性
+                    var infoT=new InfoTemplate('信息窗口','名称:${name}');
+                    var ptGraph=new Graphic(pt,pt_sym,attr,infoT);              
+                    GraphicLayer.add(ptGraph);
+
+                    /* 绘制线Graphic */
+                    var pl=new Polyline([[112.403119,39.915599],[127.403119,39.915599],[116.403119,38.915599]]);
+                    var plGraph=new Graphic(pl,line_sym);
+                    GraphicLayer.add(plGraph);
+
+                    /* 绘制面 */
+                    var pg=new Polygon([[[92.403119,34.915599],[107.403119,39.915599],[118.403119,35.915599]],[[102.403119,24.915599],[77.403119,29.915599],[108.403119,25.915599]]]);
+                    var sfs = new SimpleFillSymbol(
+                        SimpleFillSymbol.STYLE_SOLID, //STYLE_VERTICAL  STYLE_BACKWARD_DIAGONAL
+                        line_sym,
+                        new Color([255,255,0,1])
+                    );
+                    var pgGraph=new Graphic(pg,sfs);
+                    GraphicLayer.add(pgGraph);
+                    /* 绘制圆 */
+                    var cicle=new Circle([119.335216,26.075969],{
+                        'radius':1000,
+                        'radiusUnit':esri.Units.MILES
+                    });
+                    var cicleGraph=new Graphic(cicle,sfs);
+                    GraphicLayer.add(cicleGraph);
+                });   
+                    
+            </script>    
+    </body>
+</html>

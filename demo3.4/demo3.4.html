@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>地图图层控制</title>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8">
+        <link rel="stylesheet" href="https://js.arcgis.com/3.25/esri/css/esri.css">
+        <script src="https://js.arcgis.com/3.25/"></script> 
+        <style>
+            #map{
+              position:relative;
+              height:500px;
+              width:100%; 
+            }            
+        </style>
+    </head>
+    <body>
+        
+        <div id='map'>
+        </div>
+        <div>
+            <label>底图控制</label>
+            <input type='button' id='hideBasemap' value='隐藏'>
+            <input type='button' id='showBasemap' value='显示'>&nbsp;&nbsp;
+
+
+            <label>动态图层控制</label>
+            <input type='button' id='hide' value='隐藏动态地图'>
+            <input type='button' id='show' value='显示动态地图'><br />
+            <label style='margin-left:170px;'>子图层控制</label>
+            <input type='button' id='hideCap' value='隐藏省会Layer'>
+            <input type='button' id='hidePro' value='隐藏省界Layer'>
+            <input type='button' id='showAll' value='显示所有子图层'>
+           
+        </div>
+        <script>
+                require([
+                    "esri/map",
+                    "esri/layers/ArcGISDynamicMapServiceLayer",
+                     "dojo/domReady!"], function(
+                         Map,                
+                         ArcGISDynamicMapServiceLayer) {
+                    var map = new Map("map", {
+                        center: [116.403119,39.915599],
+                        zoom:3,
+                        basemap: "topo" 
+                    });                    
+                     //调用动态地图服务
+                    var DyLayer=new ArcGISDynamicMapServiceLayer('http://localhost:6080/arcgis/rest/services/webgis_lesson/ProAndCap/MapServer');
+                    map.addLayer(DyLayer);
+                    console.log('map',map);
+                    //底图控制
+                    document.getElementById('hideBasemap').onclick=function(){                       
+                        map.getLayer('layer0').setVisibility(false);
+                    }
+                    document.getElementById('showBasemap').onclick=function(){
+                        map.getLayer('layer0').setVisibility(true);
+                    }
+
+                    //动态图层控制
+                    document.getElementById('hide').onclick=function(){
+                        DyLayer.setVisibility(false);
+                    }
+                    document.getElementById('show').onclick=function(){
+                        DyLayer.setVisibility(true);
+                    }
+
+                    document.getElementById('hideCap').onclick=function(){
+                        DyLayer.setVisibleLayers([1]);
+                    } 
+                    document.getElementById('hidePro').onclick=function(){
+                        DyLayer.setVisibleLayers([0]);
+                    }
+
+                    document.getElementById('showAll').onclick=function(){
+                        DyLayer.setVisibleLayers([[0,1]]);
+                    }
+                    console.log(map);
+                });   
+                    
+            </script>    
+    </body>
+</html>

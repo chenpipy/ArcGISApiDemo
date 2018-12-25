@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>webpage</title>
+        <style>
+            .header{
+                height: 100px;
+                width: 100%;
+            }
+            .center{
+                height: 400px;
+                width: 100%;
+            }
+            .footer{
+                height: 50px;
+                width: 100%;
+            }
+        </style>
+        <link rel='stylesheet' type="text/css" href='center.css'>
+        
+    </head>
+    <body>
+        <!-- 定义样式的方式有三种:内部样式，内联样式，外部样式 -->
+        <div class='header' style="background-color: red;">
+            <label>header</label>
+        </div>
+        <div class='center'  style="background-color: green;">
+            <div class='left' style="background-color: orange;">
+                <label>left</label>
+            </div>
+            <div class=right style='background-color: purple;'>
+                <label>right</label>
+            </div>
+        </div>
+        <div class='footer' id='footer'  style="background-color:blue;">
+            <label>footer</label>
+            <input id='btn' type='button' value='click me'>
+        </div>
+        <script>
+            //定义一个函数
+            function popalert(){
+                alert('调用成功')
+            }
+            popalert();
+        </script>
+    </body>
+</html>

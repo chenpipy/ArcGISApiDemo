@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>唯一值专题图</title>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8">
+        <meta http-equiv="Access-Control-Allow-Origin" content="*">
+        <link rel="stylesheet" href="http://localhost:8030/arcgis_js_api/library/3.23/3.23/esri/css/esri.css">
+        <script src="http://localhost:8030/arcgis_js_api/library/3.23/3.23/init.js"></script> 
+        <style>
+            #map{
+              position:relative;
+              height:500px;
+              width:100%; 
+            }        
+            #legendDiv{
+                width:200px;
+                height:600px;
+                position:absolute !important;
+                top:10px;
+                left: 0;
+                z-index:10;
+                background-color: aliceblue;
+            }           
+        </style>
+    </head>
+    <body>
+        
+        <div id='map'>
+            <div id='legendDiv'></div>
+        </div>
+        <script>
+            var map;
+            require([
+                "esri/map",
+                "esri/layers/FeatureLayer",
+                "esri/InfoTemplate",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/renderers/UniqueValueRenderer", 
+                "esri/Color",
+                "esri/dijit/Legend",
+                "dojo/domReady!"
+            ], function (
+                Map,
+                FeatureLayer,
+                InfoTemplate,
+                SimpleLineSymbol, 
+                SimpleFillSymbol,
+                UniqueValueRenderer, 
+                Color,
+                Legend
+            ) {
+                map = new Map("map", {
+                    basemap: "streets",
+                    center: [109.020054,34.507328],
+                    zoom: 4,
+                    slider: false,
+                    logo:false
+                });
+                map.on("load", addFeatureLayer);
+
+                function addFeatureLayer() {
+
+                    var featureLayer = new FeatureLayer("http://localhost:6080/arcgis/rest/services/webgis_lesson/Province_zhuanti/MapServer/0", {
+                        infoTemplate: new InfoTemplate("所属区域", "${BelongToAr}"),
+                        mode: FeatureLayer.MODE_ONDEMAND,
+                        outFields: ["*"]
+                    });
+                   
+                    
+                    var defaultSymbol = new SimpleFillSymbol().setStyle(SimpleFillSymbol.STYLE_NULL);
+                    defaultSymbol.outline.setStyle(SimpleLineSymbol.STYLE_NULL);
+
+                    //create renderer
+                    var renderer = new UniqueValueRenderer(defaultSymbol, "BelongToAr");
+                    
+                    //add symbol for each possible value
+                    renderer.addValue("E C", new SimpleFillSymbol().setColor(new Color([255, 0, 0, 0.5])));   // E C 华东地区
+                    renderer.addValue("N C", new SimpleFillSymbol().setColor(new Color([0, 255, 0, 0.5])));   // N C 华北地区
+                    renderer.addValue("S C", new SimpleFillSymbol().setColor(new Color([0, 0, 255, 0.5])));   // S C 华南地区
+                    renderer.addValue("C C", new SimpleFillSymbol().setColor(new Color([255, 0, 255, 0.5]))); // C C 华中地区
+                    renderer.addValue("SW C", new SimpleFillSymbol().setColor(new Color([255, 255, 255, 0.75]))); // SW C 西南地区
+                    renderer.addValue("NW C", new SimpleFillSymbol().setColor(new Color([0, 255, 255, 0.5]))); // NW C 西北地区
+                    renderer.addValue("NE C", new SimpleFillSymbol().setColor(new Color([255, 255, 0, 0.5]))); // NE C 东北地区        
+                    featureLayer.setRenderer(renderer);
+                    map.addLayer(featureLayer);
+
+                    // 图例
+                    var legend = new Legend({
+                        map: map
+                    }, "legendDiv");
+                    legend.startup();  
+                    
+                    
+                }
+            });
+            </script>    
+    </body>
+</html>

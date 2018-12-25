@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>空间查询</title>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8">
+        <meta http-equiv="Access-Control-Allow-Origin" content="*">
+        <link rel="stylesheet" href="https://js.arcgis.com/3.23/esri/css/esri.css">
+        <script src="https://js.arcgis.com/3.23/"></script> 
+        <style>
+            #map{
+              position:relative;
+              height:500px;
+              width:100%; 
+            }       
+            
+        </style>
+    </head>
+    <body>
+        <div style="position:fixed;top:10px; right:10px;z-index: 10;">
+            <input type="button" value="空间查询" id="Btn" />
+            <input type="button" value="清除" id="clear"/>
+            <div id="divShowResult"></div>
+          </div>   
+        <div id='map'>        
+        </div>
+        <script>
+       require(["esri/map",
+        "esri/layers/ArcGISDynamicMapServiceLayer",
+        "dojo/dom",
+        "dojo/on",
+        "esri/tasks/QueryTask",
+        "esri/toolbars/draw",
+        "esri/tasks/query",
+        "esri/symbols/SimpleMarkerSymbol",
+        "esri/symbols/SimpleLineSymbol",
+        "esri/Color",
+        "esri/InfoTemplate",
+        "esri/graphic",
+        "dojo/domReady!"],
+        function (Map,
+            ArcGISDynamicMapServiceLayer,
+            dom,
+            on,
+            QueryTask,
+            Draw,
+            Query,
+            SimpleMarkerSymbol,
+            SimpleLineSymbol,
+            Color,
+            InfoTemplate,
+            Graphic) {
+            var map = new Map("map",{
+                center: [116.403119,39.915599],
+                zoom:3
+            }), mapserver = "http://localhost:6080/arcgis/rest/services/webgis_lesson/ProAndCap/MapServer";
+            var layer = new ArcGISDynamicMapServiceLayer(mapserver);
+            map.addLayer(layer)
+            //定义一个绘图工具
+            var toolBar = new Draw(map);
+            //给绘制button绑定事件
+            on(dom.byId("Btn"), "click", function () {
+                map.graphics.clear();
+                dom.byId("divShowResult").innerHTML = "";
+                //激活绘图工具，绘制一个面图形
+                toolBar.activate(Draw.POLYGON);
+            })
+            //给清除button绑定事件
+            on(dom.byId("clear"), "click", function () {
+                map.graphics.clear();
+                dom.byId("divShowResult").innerHTML = "";
+                //禁用绘图工具，否则导航工具无法使用
+                toolBar.deactivate();
+            })
+            on(toolBar, "draw-complete", function (result) {
+                //获得绘图得到的面
+                var geometry = result.geometry;
+                //关闭绘图工具
+                toolBar.deactivate();
+                queryGraphic(geometry);
+            });
+            function queryGraphic(geometry) {
+                //创建查询对象，注意：服务的后面有一个编号，代表对那一个图层进行查询
+                var queryTask = new QueryTask(mapserver+"/0");
+                //创建查询参数对象
+                var query = new Query();
+                //空间查询的几何对象
+                query.geometry = geometry;
+                //服务器给我们返回的字段信息，*代表返回所有字段
+                query.outFields = ["*"];
+                //空间参考信息
+                query.outSpatialReference = map.spatialReference;
+                //查询的标准，此处代表和geometry相交的图形都要返回
+                query.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;
+                //是否返回几何信息
+                query.returnGeometry = true;
+                //执行空间查询
+                queryTask.execute(query, showQueryResult);
+            }
+            function showQueryResult(queryResult) {
+                //定义点符号
+                var pointSym = new SimpleMarkerSymbol(
+                    SimpleMarkerSymbol.STYLE_SQUARE,
+                     20,
+                    new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([255, 0, 0]), 1),
+                    new Color([255, 255, 0, 0.85])
+                    );
+                //定义信息窗口
+                var infoTemplate = new InfoTemplate("省会信息", "Name:${NAME}");
+                if (queryResult.features.length == 0) {
+                    dom.byId("divShowResult").innerHTML = "";
+                    return;
+                }
+                var htmls = "";
+                if (queryResult.features.length >= 1) {
+                    htmls = htmls + "<table style=\"width: 100%\">";
+                    htmls = htmls + "<tr><td>名称</td></tr>";
+                    for (let i = 0; i < queryResult.features.length; i++) {
+                        //得到graphic
+                        var graphic = queryResult.features[i];
+                        //给图形赋予符号
+                        graphic.setSymbol(pointSym);
+                        graphic.setInfoTemplate(infoTemplate);
+                        //添加到地图从而实现高亮效果
+                        map.graphics.add(graphic);                            
+                        let ptattr = graphic.attributes;
+                        if (i % 2 == 0)
+                            htmls = htmls + "<tr>";
+                        else
+                            htmls = htmls + "<tr bgcolor=\"#F0F0F0\">";
+                        htmls = htmls + "<td><a href=\"#\"\">" + ptattr.NAME + "</a></td>";
+                        htmls = htmls + "</tr>";
+                    }
+                    htmls = htmls + "</table>";
+                    dom.byId("divShowResult").innerHTML = htmls;
+                }
+            }
+        });
+
+            </script>    
+    </body>
+</html>

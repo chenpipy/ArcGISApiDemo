@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>地图基本操作</title>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8">
+        <link rel="stylesheet" href="https://js.arcgis.com/3.25/esri/css/esri.css">
+        <script src="https://js.arcgis.com/3.25/"></script>    
+    </head>
+    <body>
+        <div id='map'>
+        </div>
+        <div id='Navigation'>
+            <input type='button' id='pan' value='平移' />
+            <input type='button' id='zoomin' value='放大' />
+            <input type='button' id='zoomout'value='缩小' />
+            <input type='button' id='prev'value='前一视图' />
+            <input type='button' id='next'value='后一视图' />
+            <input type='button' id='zoomtofull'value='全图' />
+            
+        </div>
+        <script>
+                require([
+                    "esri/map",
+                    "esri/toolbars/navigation",
+                     "dojo/domReady!"], function(
+                         Map,
+                         Navigation) {
+                    var map = new Map("map", {
+                        center: [116.403119,39.915599],
+                        zoom:2,
+                        basemap: "topo"
+                    });
+                    //新建一个Navigation对象，参数是map对象
+                    /* var navtoolbar=new Navigation(map);   
+
+                    document.getElementById('pan').onclick=function(){
+                        navtoolbar.activate(Navigation.PAN);// 平移
+                    };
+                    document.getElementById('zoomin').onclick=function(){
+                        navtoolbar.activate(Navigation.ZOOM_IN);//放大
+                    };
+                    document.getElementById('zoomout').onclick=function(){
+                        navtoolbar.activate(Navigation.ZOOM_OUT);//缩小
+                    };
+                    document.getElementById('prev').onclick=function(){
+                        navtoolbar.zoomToPrevExtent();//前一视图
+                    };
+                    document.getElementById('next').onclick=function(){
+                        navtoolbar.zoomToNextExtent();//后一视图
+                    };
+                    document.getElementById('zoomtofull').onclick=function(){
+                        navtoolbar.zoomToFullExtent();//全图
+                    }; */  
+                    // 块注释快捷键 shift+alt+A
+                  document.getElementById('Navigation').onclick=function(event){  
+                        var e=event||window.event; //w3c|| IE
+                        var target=e.target||e.srcElement;
+                        if(target.type=='button'){
+                            switch(target.id){
+                                case 'pan':
+                                    navtoolbar.activate(Navigation.PAN);
+                                    break;
+                                case 'zoomin':
+                                    navtoolbar.activate(Navigation.ZOOM_IN);
+                                    break;
+                                case 'zoomout':
+                                    navtoolbar.activate(Navigation.ZOOM_OUT);
+                                    break;
+                                case 'pre':
+                                    navtoolbar.zoomToPrevExtent();
+                                    break;
+                                case 'next':
+                                    navtoolbar.zoomToNextExtent();
+                                    break;
+                                case 'zoomtofull':
+                                    navtoolbar.zoomToFullExtent();
+                                    break;
+                                default:
+                                    navtoolbar.deactivate();
+                                    break;
+                            }
+                        }
+
+                    }
+                });
+                
+            </script>    
+    </body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>地图部件</title>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8">
+        <link rel="stylesheet" href="https://js.arcgis.com/3.25/esri/css/esri.css">
+        <script src="https://js.arcgis.com/3.25/"></script> 
+        <style>
+            #map{
+              position:relative; 
+              height:600px;
+              width:100%; 
+            }
+            #basemapGalleryDiv{
+                width:400px;
+                height:100px;
+                position:absolute;
+                top:200px;
+                right: 0;
+                z-index:10;
+            }
+            #BasemapToggleDiv{
+                width:100px;
+                height:100px;
+                position:absolute;
+                top:0;
+                right: 0;
+                z-index:10;
+            }
+            #legendDiv{
+                width:100px;
+                height:100px;
+                position:absolute !important;
+                top:300px;
+                left: 0;
+                z-index:10;
+            }
+            #measurementDiv{
+                width:400px;
+                height:100px;
+                position:absolute !important;
+                top:0;
+                right: 200px;
+                z-index:10;
+            }
+        </style>
+    </head>
+    <body>
+        
+        <div id='map'>
+            <div id='legendDiv'></div>
+            <div id='BasemapToggleDiv'></div>
+            <div id="basemapGalleryDiv"></div>
+            <div id='measurementDiv'></div>
+        </div>
+        <script>
+                require([
+                    "esri/map",
+                    "esri/dijit/Scalebar",
+                    "esri/dijit/OverviewMap",
+                    "esri/dijit/BasemapGallery",
+                    "esri/dijit/BasemapToggle",
+                    "esri/dijit/Legend",
+                    "esri/dijit/Measurement",
+                    "esri/layers/ArcGISDynamicMapServiceLayer",
+                     "dojo/domReady!"], function(
+                         Map,
+                         Scalebar,
+                         OverviewMap,
+                         BasemapGallery,
+                         BasemapToggle,
+                         Legend,
+                         Measurement,
+                         ArcGISDynamicMapServiceLayer) {
+                    var map = new Map("map", {
+                        center: [116.403119,39.915599],
+                        zoom:5,
+                        basemap: "topo" 
+                    });
+                     //调用动态地图服务
+                    var DyLayer=new ArcGISDynamicMapServiceLayer('http://localhost:6080/arcgis/rest/services/webgis_lesson/ProAndCap/MapServer');
+                    map.addLayer(DyLayer);
+                    //比例尺
+                    var scalebar=new Scalebar({
+                        map:map,
+                        attachTo:'bottom-left',
+                        scalebarStyle:'line',  //line
+                        scalebarUnit:'metric'  // english,dual
+                    });
+                   //鹰眼图
+                    var overviewMap = new OverviewMap({
+                        map:map,
+                        attachTo: "bottom-right",
+                        color:" #D84E13"
+                    });
+                     overviewMap.startup();
+                    
+                    //画廊
+                      
+                    var basemapGallery = new BasemapGallery({
+                        showArcGISBasemaps: true,
+                        map: map
+                    }, "basemapGalleryDiv");
+                    basemapGallery.startup();
+                   
+                    //地图切换器
+                    var toggle = new BasemapToggle({
+                        map: map,
+                        basemap: "satellite"
+                        }, "BasemapToggleDiv");
+                    toggle.startup();
+                    
+                    // 图例
+                    var legend = new Legend({
+                        map: map,
+                        layerInfos: [{ 
+                            layer: DyLayer,
+                            title: "图例" 
+                            }]
+                    }, "legendDiv");
+                    legend.startup(); 
+ 
+                    var measure=new Measurement({
+                        map:map
+                    },'measurementDiv'); 
+                    measure.startup();  
+                });   
+                    
+            </script>    
+    </body>
+</html>

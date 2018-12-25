@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>点密度专题图</title>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8">
+        <meta http-equiv="Access-Control-Allow-Origin" content="*">
+        <link rel="stylesheet" href="https://js.arcgis.com/3.23/esri/css/esri.css">
+        <script src="https://js.arcgis.com/3.23/"></script> 
+        <style>
+            #map{
+              position:relative;
+              height:500px;
+              width:100%; 
+            }        
+            #legendDiv{
+                width:200px;
+                height:600px;
+                position:absolute !important;
+                top:10px;
+                left: 0;
+                z-index:10;
+                background-color: aliceblue;
+            }           
+        </style>
+    </head>
+    <body>
+        
+        <div id='map'>
+            <div id='legendDiv'></div>
+        </div>
+        <script>
+            require([
+                "esri/map",       
+                "esri/layers/FeatureLayer", 
+                "esri/InfoTemplate", 
+                "esri/renderers/DotDensityRenderer", 
+                "esri/dijit/Legend",
+                "esri/Color",
+                "dojo/on", 
+                "dojo/domReady!"], 
+            function(
+                Map, FeatureLayer, InfoTemplate, DotDensityRenderer, Legend, Color, on ) {
+                map = new Map("map", {
+                    basemap:"topo",
+                    center: [116.403119,39.915599],
+                    zoom: 5,
+                    slider:false,
+                    logo:false
+                });
+                var featureLayer = new FeatureLayer("http://localhost:6080/arcgis/rest/services/webgis_lesson/Province_zhuanti/MapServer/0", {
+                        infoTemplate: new InfoTemplate("${Name}", "${*}"),
+                        mode: FeatureLayer.MODE_ONDEMAND,
+                        outFields: ["*"]
+                    });
+                // layer.setDefinitionExpression("Areas>1");      //设置图层显示的筛选表达式“SQL语句”
+                    DDrenderer=new DotDensityRenderer({   //新建点密度渲染器
+                        fields: [{
+                            name: "Areas",
+                            color: new Color("#FF3E96")
+                        }],
+                        dotValue: 3000,   //设置点代表值
+                        dotSize: 3,       //设置点大小
+                        dotShape:"circle"    //设置点类型，默认square
+                    });           
+                featureLayer.setRenderer(DDrenderer);
+                map.addLayer(featureLayer);
+
+                var legend = new Legend({     //设置专题信息
+                    map: map, 
+                    layerInfos: [{ 
+                        layer: featureLayer,
+                        title: "面积" 
+                    }]
+                }, "legendDiv");
+                legend.startup();
+            });
+            </script>    
+    </body>
+</html>
