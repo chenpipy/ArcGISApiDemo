@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>绘制Graphic</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <!--<link rel="stylesheet" href="../asserts/style/esri.css">-->
+    <link rel="stylesheet" href="https://js.arcgis.com/3.25/esri/css/esri.css">
+    <!--<script src="https://js.arcgis.com/3.25/"></script>-->
+    <script src="../asserts/js/init.js"></script>
+    <style>
+        #map {
+            position: relative;
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div id='map'>
+</div>
+<script>
+  require([
+    "esri/map",
+    "esri/graphic",
+    "esri/geometry/Point",
+    "esri/geometry/Polyline",
+    "esri/geometry/Polygon",
+    "esri/geometry/Circle",
+    "esri/symbols/SimpleMarkerSymbol",
+    "esri/symbols/SimpleLineSymbol",
+    "esri/symbols/SimpleFillSymbol",
+    "esri/Color",
+    "esri/InfoTemplate",
+    "esri/layers/GraphicsLayer",
+    "dojo/domReady!"],function (
+    Map,
+    Graphic,
+    Point,
+    Polyline,
+    Polygon,
+    Circle,
+    SimpleMarkerSymbol,
+    SimpleLineSymbol,
+    SimpleFillSymbol,
+    Color,
+    InfoTemplate,
+    GraphicsLayer
+  ) {
+    var map = new Map("map",{
+      center: [116.403119, 39.915599],
+      zoom: 8,
+      basemap: "satellite"
+    })
+    //先定义graphicLayer
+     var graphicLayer = new GraphicsLayer();
+     //添加到map
+     map.addLayer(graphicLayer);
+     //绘制Graphic（图形）
+     //定义一个点的几何队形geometry
+     var pointGeometry = new Point(116.403119, 39.915599, map.spatialReference)
+     //定义点的样式
+     //定义线的样式
+     var lineSymbol = new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+       new Color("#00ffff"),
+       1
+     )
+     var pointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE,//点类型
+       20,//点的尺寸
+       lineSymbol,//点的轮廓线，线符号
+       new Color("#ffffaa") //点的填充色
+     )
+     //点的属性
+     var attr={'name':"乡政府"};
+     //创建infotemplate
+     var infoTemplate=new InfoTemplate('属性窗口','名称：${name}');//后面的参数，相当于起别名
+     var pointGraphic=new Graphic(pointGeometry,pointSymbol,attr,infoTemplate);
+     graphicLayer.add(pointGraphic);
+    //绘制线
+    var plGeometry=new Polyline([[112.403119,39.915599],[114.403119,39.15],[116.403119,40]]);
+    var lintAttr={"name":"常宜高速"}
+    var plgraphic=new Graphic(plGeometry,lineSymbol,attr,infoTemplate);
+    graphicLayer.add(plgraphic)
+    //绘制面
+    var pyGeometry=new Polygon([[[92.403119,34.915599],[107.403119,39.915599],[118.403119,35.915599]],[[102.403119,24.915599],[77.403119,29.915599],[108.403119,25.915599]]]);
+    var pySymbol=new SimpleFillSymbol(
+      SimpleFillSymbol.STYLE_SOLID,
+      lineSymbol,
+      new Color("#ff88ff")
+    )
+    var pygraphic=new Graphic(pyGeometry,pySymbol);
+    graphicLayer.add(pygraphic)
+  })
+</script>
+</body>
+</html>
