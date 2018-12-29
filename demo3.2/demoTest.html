@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <link rel="stylesheet" href="../asserts/style/esri.css">
+    <!--<script src="https://js.arcgis.com/3.25/"></script>-->
+    <script src="../asserts/js/init.js"></script>
+    <style>
+        html, body {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+        }
+
+        #map {
+            position: relative;
+            height: 500px;
+            width: 100%;
+            border: 1px solid red;
+        }
+
+        #navigation {
+            margin: 20px 0 0 20px;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<div id='navigation'>
+    <input type='button' id='pan' value='平移'/>
+    <input type='button' id='zoomin' value='放大'/>
+    <input type='button' id='zoomout' value='缩小'/>
+    <input type='button' id='prev' value='前一视图'/>
+    <input type='button' id='next' value='后一视图'/>
+    <input type='button' id='zoomtofull' value='全图'/>
+
+</div>
+</body>
+<script>
+  // https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Petroleum/KGS_OilGasFields_Kansas/MapServer
+  // -94.75290067627297, 39.034671990514816
+  require(["esri/map",
+    "esri/layers/ArcGISDynamicMapServiceLayer",
+    "esri/layers/ArcGISTiledMapServiceLayer",
+    "esri/geometry/Extent",
+    "esri/SpatialReference",
+    "esri/toolbars/navigation"
+  ], function (
+    Map,
+    ArcGISDynamicMapServiceLayer,
+    ArcGISTiledMapServiceLayer,
+    Extent,
+    SpatialReference,
+    Navigation
+  ) {
+    var dyLayerUrl = "https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Petroleum/KGS_OilGasFields_Kansas/MapServer"
+    var map = new Map("map", {
+      center: [-94.75290067627297, 39.034671990514816],
+      basemap: "streets",
+      zoom: 10
+    })
+    var dYlayer = new ArcGISDynamicMapServiceLayer(dyLayerUrl)
+    map.addLayer(dYlayer);
+    var navitoolbar = new Navigation(map);
+    document.getElementById("navigation").onclick = function (e) {
+      var target = e.target;
+      if (target.type === "button") {
+        console.log(Navigation.ZOOM_IN)
+        switch (target.id) {
+          case "pan":
+            navitoolbar.activate(Navigation.PAN)
+            break;
+          case "zoomin":
+            navitoolbar.activate(Navigation.ZOOM_IN);
+            break;
+          case "zoomout":
+            navitoolbar.activate(Navigation.ZOOM_OUT);
+            break;
+          case "prev":
+            navitoolbar.zoomToPrevExtent();
+            break;
+          case "next":
+            navitoolbar.zoomToNextExtent();
+            break;
+          case "zoomtofull":
+            navitoolbar.zoomToFullExtent();
+            break;
+          default:
+            navitoolbar.deactivate();
+            break;
+        }
+      }
+    }
+  })
+</script>
+</html>

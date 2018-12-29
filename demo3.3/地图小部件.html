@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>地图小部件练习</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <link rel="stylesheet" href="../asserts/style/esri.css">
+    <!--<script src="https://js.arcgis.com/3.25/"></script>-->
+    <script src="../asserts/js/init.js"></script>
+    <style>
+        html, body {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+        }
+
+        #map {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+
+        #map #legendDiv {
+            position: absolute !important;
+            background-color: #ffffff;
+            top: 100px;
+            left: 20px;
+            z-index: 20;
+            border-radius: 10px;
+        }
+
+        #map #BasemapToggleDiv {
+            position: absolute;
+            bottom: 25px;
+            right: 20px;
+            z-index: 20;
+        }
+
+
+        #map #basemapGalleryDiv {
+            position: absolute;
+            width:400px;
+            top: 50px;
+            right: 20px;
+            z-index: 20;
+        }
+        #map #measurementDiv {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            z-index: 20;
+        }
+        #map #overviewMap {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            z-index: 20;
+        }
+        /*重置自带的鹰眼图*/
+        .esriOverviewMap .ovwContainer{
+            border:1px solid #6e6e6e;
+            border-radius: 6px;
+        }
+
+    </style>
+</head>
+<body>
+<div id="map">
+    <!--图例-->
+    <div id='legendDiv'></div>
+    <!--底图切换-->
+    <div id='BasemapToggleDiv'></div>
+    <!--主题切换-->
+    <div id="basemapGalleryDiv"></div>
+    <!--测量工具类-->
+    <div id='measurementDiv'></div>
+    <!--鹰眼图-->
+    <div id="overviewMap"></div>
+</div>
+
+<script>
+  require([
+    "esri/map",
+    "esri/dijit/Scalebar",
+    "esri/dijit/OverviewMap",
+    "esri/dijit/BasemapGallery",
+    "esri/dijit/BasemapToggle",
+    "esri/dijit/Legend",
+    "esri/dijit/Measurement",
+    "esri/layers/ArcGISDynamicMapServiceLayer",
+    "dojo/domReady!"
+  ], function (Map,
+               Scalebar,
+               OverviewMap,
+               BasemapGallery,
+               BasemapToggle,
+               Legend,
+               Measurement,
+               ArcGISDynamicMapServiceLayer) {
+    var dyLayerUrl = "https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Petroleum/KGS_OilGasFields_Kansas/MapServer"
+    var dYlayer = new ArcGISDynamicMapServiceLayer(dyLayerUrl)
+    var map = new Map("map", {
+      center: [-94.75290067627297, 39.034671990514816],
+      zoom: 10,
+      basemap: "streets"
+    })
+    map.addLayer(dYlayer);
+    //添加比例尺
+    var scalebar=new Scalebar({
+      map:map,
+      attachTo:"bottom-center",
+      scalebarStyle:"ruler",
+      scalebarUnit:"metric",
+    })
+    //添加鹰眼图
+    /*var overviewMap=new OverviewMap({
+      map:map,
+      attachTo:"bottom-right",
+      color:"#ff0000"
+    },"overviewMap")
+    overviewMap.startup();*/
+    //画廊
+    var basemapGallery=new BasemapGallery({
+      showArcGSIBasemaps:true,
+      map:map,
+    },"basemapGalleryDiv")
+    basemapGallery.startup();
+
+    //地图切换工具
+    var toggle=new BasemapToggle({
+      map:map,
+      basemap:"satellite"
+    },"BasemapToggleDiv")
+    toggle.startup();
+    //添加图例
+    var legend=new Legend({
+      map:map,
+      layerInfos:[{
+       layer:dYlayer,
+       title:"图例"
+      }]
+    },"legendDiv")
+    legend.startup();
+    //添加测量工具箱
+    var measure=new Measurement({
+      map:map
+      },'measurementDiv')
+    measure.startup();
+  })
+</script>
+</body>
+</html>
