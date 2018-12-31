@@ -4,8 +4,10 @@
     <title>给图层添加标注</title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8">
     <meta http-equiv="Access-Control-Allow-Origin" content="*">
-    <link rel="stylesheet" href="https://js.arcgis.com/3.23/esri/css/esri.css">
-    <script src="https://js.arcgis.com/3.23/"></script>
+    <!--<link rel="stylesheet" href="https://js.arcgis.com/3.23/esri/css/esri.css">
+    <script src="https://js.arcgis.com/3.23/"></script>-->
+    <link rel="stylesheet" href="http://localhost:8080/arcgis_js_api/library/3.27/3.27/esri/css/esri.css">
+    <script src="http://localhost:8080/arcgis_js_api/library/3.27/3.27/init.js"></script>
     <style>
         #map {
             position: relative;
@@ -36,21 +38,22 @@
     ArcGISTiledMapServiceLayer
   ) {
     var map = new Map("map", {
-      center: [-94.75290067627297, 39.034671990514816],
-      zoom: 10,
+      center: [120, 32],
+      zoom: 3,
       basemap: "satellite",
       showLabels: true,
     })
     //定义featureLayer
-    var feaLayer = new FeatureLayer("https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Petroleum/KGS_OilGasFields_Kansas/MapServer/0");
+    var feaLayer = new FeatureLayer("https://localhost:6443/arcgis/rest/services/chinaMapService/MapServer/0");
     map.addLayer(feaLayer);
+    console.log(1)
     var textSymbol = new TextSymbol().setColor(new Color("#ff0000"))
       .setAlign(Font.ALIGN_START)
       .setAngle(0)
-      .setFont(new Font("8pt"))
-      .setWeight(Font.WEIGHT_BOLDER)
+      .setFont(new Font("8pt").setWeight(Font.WEIGHT_BOLDER))
+
     var formatJson = {
-      "labelExpressionInfo": {"value": "{NAME}"},
+      "labelExpressionInfo": {"value": "{PYMC}"},
       "labelPlacement": 'bottom-left',
       'symbol': textSymbol  //定义文字显示的样式
     }
