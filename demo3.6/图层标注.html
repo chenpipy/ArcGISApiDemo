@@ -52,12 +52,12 @@
       .setAngle(0)
       .setFont(new Font("8pt").setWeight(Font.WEIGHT_BOLDER))
 
-    var formatJson = {
+    let formatJson = {
       "labelExpressionInfo": {"value": "{PYMC}"},
       "labelPlacement": 'bottom-left',
       'symbol': textSymbol  //定义文字显示的样式
     }
-    var labelClass = new LabelClass(formatJson);
+    let labelClass = new LabelClass(formatJson);
     feaLayer.setLabelingInfo([labelClass]);
   });
 </script>

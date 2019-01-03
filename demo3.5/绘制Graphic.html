@@ -83,6 +83,7 @@
     graphicLayer.add(plgraphic)
     //绘制面
     var pyGeometry=new Polygon([[[92.403119,34.915599],[107.403119,39.915599],[118.403119,35.915599]],[[102.403119,24.915599],[77.403119,29.915599],[108.403119,25.915599]]]);
+    //面符号
     var pySymbol=new SimpleFillSymbol(
       SimpleFillSymbol.STYLE_SOLID,
       lineSymbol,
@@ -90,6 +91,7 @@
     )
     var pygraphic=new Graphic(pyGeometry,pySymbol);
     graphicLayer.add(pygraphic)
+      console.log(1)
   })
 </script>
 </body>
