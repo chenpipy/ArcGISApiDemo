@@ -4,8 +4,10 @@
         <title>空间查询</title>
         <meta http-equiv="content-type" content="text/html;charset=utf-8">
         <meta http-equiv="Access-Control-Allow-Origin" content="*">
-        <link rel="stylesheet" href="https://js.arcgis.com/3.23/esri/css/esri.css">
-        <script src="https://js.arcgis.com/3.23/"></script> 
+       <!-- <link rel="stylesheet" href="https://js.arcgis.com/3.23/esri/css/esri.css">
+        <script src="https://js.arcgis.com/3.23/"></script>-->
+        <link rel="stylesheet" href="http://192.168.31.30:8080/arcgis_js_api/library/3.27/3.27/esri/css/esri.css">
+        <script src="http://192.168.31.30:8080/arcgis_js_api/library/3.27/3.27/init.js"></script>
         <style>
             #map{
               position:relative;
@@ -55,10 +57,11 @@
         ) {
         var map = new Map("map",{
             center: [116.403119,39.915599],
-            zoom:3
+            zoom:3,
+            basemap:"topo"
         });
         //地图服务的url
-        var MapServer = "http://localhost:6080/arcgis/rest/services/webgis_lesson/ProAndCap/MapServer";
+        var MapServer = "http://localhost/arcgis/rest/services/ChinaMapService/chinaMapService/MapServer";
         //定义一个动态地图服务
         var layer = new ArcGISDynamicMapServiceLayer(MapServer);
         map.addLayer(layer)
@@ -100,10 +103,12 @@
           params.geometry = geometry;
           params.mapExtent = map.extent;
           //执行空间查询
-          identifyTask.execute(params, showQueryResult);
+            console.log(params)
+            identifyTask.execute(params, showQueryResult);
         }
         //通过此函数处理查询之后的信息
         function showQueryResult(idResults) {
+            console.log(idResults)
          //创建点符号
          var pointSym = new SimpleMarkerSymbol(
              SimpleMarkerSymbol.STYLE_SQUARE,
@@ -124,14 +129,15 @@
                  console.log('result',result);
                  var graphic = result.feature;
                  //设置图形的符号
-                 if (idResults[i].layerId == 0) {
+                 if (idResults[i].layerId === 0) {
                      graphic.setSymbol(pointSym);
                      
-                 } else
+                 } else{
                      graphic.setSymbol(lineSymbol);
+                 }
                  graphic.setInfoTemplate(infoTemplate);
                  var namevalue = graphic.attributes;
-                 if (i % 2 == 1) {
+                 if (i % 2 === 1) {
                      htmls = htmls + "<tr  bgcolor=\"#E0E0E0\"><td>" +
                     namevalue.NAME + "</td><td>" + result.layerName + "</td></tr>";
                  }

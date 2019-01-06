@@ -1,75 +1,135 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>FindTask多图层属性查询</title>
-        <meta http-equiv="content-type" content="text/html;charset=utf-8">
-        <meta http-equiv="Access-Control-Allow-Origin" content="*">
-        <link rel="stylesheet" href="https://js.arcgis.com/3.23/esri/css/esri.css">
-        <script src="https://js.arcgis.com/3.23/"></script>
-        <style>
-            #map{
-              position:relative;
-              height:500px;
-              width:100%;
-            }
+<head>
+    <title>FindTask多图层属性查询</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <!--<link rel="stylesheet" href="https://js.arcgis.com/3.23/esri/css/esri.css">
+    <script src="https://js.arcgis.com/3.23/"></script>-->
+    <link rel="stylesheet" href="http://localhost:8080/arcgis_js_api/library/3.27/3.27/esri/css/esri.css">
+    <script src="http://localhost:8080/arcgis_js_api/library/3.27/3.27/init.js"></script>
+    <style>
+        #map {
+            position: relative;
+            height: 500px;
+            width: 100%;
+        }
+        #mapAttrs{
+            position: absolute;
+            top: 20px;
+            left: 80px;
+            overflow: auto;
+            z-index: 20;
+            max-width: 500px;
+            background-color: #00C0F3;
+            display: none;
 
-        </style>
-    </head>
-    <body>
-       <div>
-            输入省份或省会名称:
-            <input type="text" id="searchText" size="40" value="甘肃省" />
-            <input type="button" value="查询" id="find" />
-            <div id="tbl"></div>
-       </div>
-        <div id='map'>
-
+        }
+        #mapAttrs .attrs{
+            margin-right:30px;
+            overflow: hidden;
+        }
+        .attrs table{
+            border-collapse:collapse;
+            float:left;
+        }
+        .attrs table th,td{
+            border:1px solid #eeee;
+            margin-right:15px;
+        }
+        #mapAttrs .control{
+            float:right;
+            margin-right:5px;
+        }
+    </style>
+</head>
+<body>
+<div>
+    输入省份或省会名称:
+    <input type="text" id="searchText" size="40" value="甘肃省"/>
+    <input type="button" value="查询" id="find"/>
+    <div id="tbl"></div>
+</div>
+<div id='map'>
+    <div id="mapAttrs">
+        <div id="attrs" class="attrs">
+                <table id="table" style="width: 200px;" >
+                </table>
+                <div class="control">
+                    <a href="javascript:void(0)" id="closeAttrs"><span>关闭</span></a>
+                </div>
         </div>
 
-        <script>
-      require([
-      "esri/map",
-      "esri/tasks/FindTask",
-      "esri/tasks/FindParameters",
-      "dojo/_base/array",
-      "esri/layers/ArcGISDynamicMapServiceLayer"],
-      function (
-        Map,
-        FindTask,
-        FindParameters,
-        Array,
-        ArcGISDynamicMapServiceLayer) {
-        var map = new Map("map", {
-                    center: [-100.11289190337,34.7124140046411],
-                    zoom:7,
-                    basemap: "topo"
-                });
-        //调用动态地图服务
-        // var DyLayer=new ArcGISDynamicMapServiceLayer('http://localhost:6080/arcgis/rest/services/webgis_lesson/ProAndCap/MapServer');
-        var dyLayerUrl = "https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Petroleum/KGS_OilGasFields_Kansas/MapServer"
-        let dyLayer=new ArcGISDynamicMapServiceLayer(dyLayerUrl);
-        map.addLayer(dyLayer);
-        var find = new FindTask("https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Petroleum/KGS_OilGasFields_Kansas/MapServer");
-        let findParameters=new FindParameters();
-        findParameters.contains=true;
-        findParameters.searchText=document.getElementById("searchText").value;
-        var params={
-          contains:true,
-          searchFields:["FID"],
-          returnGeometry:true,
-        }
-        Object.assign(findParameters,params);
-        document.getElementById("find").onclick=doFind;
-        function doFind() {
-          alert(1)
-          params.searchText=document.getElementById("searchText").value;
-          find.execute(findParameters,showResults);
-        }
-        function showResults(results) {
-          console.log(1)
-          console.log(results)
-        }
-      });
-            </script>
-    </body>
+        <div id="nodata" style="width:200px; text-align: center"></div>
+
+    </div>
+
+</div>
+
+<script>
+    require([
+            "esri/map",
+            "esri/tasks/FindTask",
+            "esri/tasks/FindParameters",
+            "dojo/_base/array",
+            "esri/layers/ArcGISDynamicMapServiceLayer"],
+        function (
+            Map,
+            FindTask,
+            FindParameters,
+            Array,
+            ArcGISDynamicMapServiceLayer) {
+            var map = new Map("map", {
+                center: [112.11289190337, 34.7124140046411],
+                zoom: 3,
+                basemap: "topo"
+            });
+            //调用动态地图服务
+            // var DyLayer=new ArcGISDynamicMapServiceLayer('http://localhost:6080/arcgis/rest/services/webgis_lesson/ProAndCap/MapServer');
+            var dyLayerUrl = "http://localhost/arcgis/rest/services/ChinaMapService/chinaMapService/MapServer"
+            let dyLayer = new ArcGISDynamicMapServiceLayer(dyLayerUrl);
+            map.addLayer(dyLayer);
+            var find = new FindTask(dyLayerUrl);
+            let findParameters = new FindParameters();
+            findParameters.contains = true;
+            var params = {
+                contains: true,
+                layerIds:[0],
+                searchFields: ["OBJECTID","省份名称"],
+                returnGeometry : true,
+            }
+            Object.assign(findParameters, params);
+            document.getElementById("find").onclick = doFind;
+            document.getElementById("closeAttrs").onclick=closeAttrs;
+            function doFind() {
+                findParameters.searchText = document.getElementById("searchText").value;
+                find.execute(findParameters, showResults);
+            }
+            function showResults(results) {
+                console.log(results)
+
+                let tempArr=[];
+                tempArr.push("<thead><tr><th style='width:50%'>FID</th><th style='width:50%'>name</th></tr></thead><tbody>")
+                if(results.length>0){
+                    document.getElementById("nodata").innerText=""
+                    results.forEach(function (item) {
+                        let attributes=item.feature.attributes;
+                        tempArr.push("<tr><td>"+attributes.OBJECTID+"</td><td>"+attributes["省份名称"]+"</td></tr>")
+                    })
+                }else{
+                    document.getElementById("nodata").innerText="暂无数据"
+                }
+                tempArr.push("</tbody>")
+                tempArr.push("<tr></tr>")
+                tempArr.push("</tbody>");
+                document.getElementById("table").innerHTML=tempArr.join("")
+                document.getElementById("mapAttrs").style.display="block";
+
+            }
+            function closeAttrs(e) {
+                document.getElementById("mapAttrs").style.display="none";
+            }
+        });
+</script>
+</body>
 </html>
